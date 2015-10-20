@@ -1,0 +1,144 @@
+ORG 2500h
+LHLD 2504h
+XCHG
+LHLD 2500h
+
+;pos/neg numbers
+mvi A,1b
+STA 24FEh; sign of number N1
+mvi A,1b
+STA 24FFh; numbers have same sign?
+mvi B,0FFh
+
+
+;enter numbers
+LXI HL,7h
+  ;test N1
+  lda 24FEh
+  mvi C,1b
+  xra C
+  
+  JZ neg_n1
+  JNZ pos_n1
+    neg_n1:
+    mov A,H
+    xra B
+    mov H,A
+    mov A,L
+    xra B
+    inr A
+    mov L,A
+    ;changing meaning of adress
+    ;mvi A,1b
+    ;sta 24FEh
+    ;zero to sign adress
+    ;mvi A,0b
+    ;STA 24FEh
+    
+    pos_n1:
+    ;changing meaning of adress
+    ;mvi A,0b
+    ;sta 24FEh
+LXI DE,9h
+  ;test N2
+  lda 24FFh
+     xra C
+     JNZ different
+     JZ same_sign
+     same_sign:
+     ;mov A,C
+     JNZ pos_n2
+     JZ neg_n2
+     different:
+     ;mov A,C
+     lda 24FEh
+     xra C
+     JZ pos_n2
+     JNZ neg_n2
+
+     next_2:
+     neg_n2:
+     mov A,D
+     xra B
+     mov D,A
+     mov A,E
+     xra B
+     inr A
+     mov E,A
+     ;1 to difference
+     ;mvi A,1b
+     ;STA 24FFh
+     
+     ;changing meaning of adress
+     ;mvi A,1b
+     ;sta 24FFh
+     jmp next_3
+     pos_n2:
+     ;changing meaning of adress
+     ;mvi A,0b
+     ;sta 24FEh
+     ;1 to difference
+     ;mvi A,1b
+     ;STA 24FFh
+     next_3:
+      CALL 2570h
+
+
+ORG 2570h
+dad DE
+
+
+lda 24FFh
+xra C
+  JZ same
+  JNZ dif
+  same:
+  lda 24FEh
+  xra C
+  JNZ same_pos
+  JZ same_neg
+  same_pos:
+      JNC right
+      JC highest_pos
+    right:
+     mov A,H
+     xra B
+     mov H,A
+     mov A,L
+     dcr A
+     xra B
+     mov L,A
+     jmp finish
+    highest_pos:
+     lxi HL,0FFFFh
+     jmp finish
+  same_neg:
+      JNC right_neg
+      JC lowest_neg
+      right_neg:
+     mov A,H
+     xra B
+     mov H,A
+     mov A,L
+     dcr A
+     xra B
+     mov L,A
+     jmp finish
+    lowest_neg:
+     lxi HL,0FFFFh
+     inx HL
+     jmp finish
+  dif:
+    mov A,H
+    xra B
+    mov H,A
+    mov A,L
+    dcr A
+    xra B
+    mov L,A
+    finish:
+HLT
+
+;MVI A,10000000b
+;MVI C,0b
+;Add C

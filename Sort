@@ -1,0 +1,131 @@
+ORG 1050h
+lxi HL,met
+;XTHL
+JMP skip
+met:
+DB 4h,15h,6h,14h,23h,9h
+;XTHL
+skip:
+mvi C,6h
+mov B,C ;elements' number
+CALL MOVING
+
+ORG 1100h
+MOVING:
+;cycle iterate HL for coping every element to 2000h adress
+lxi DE,2000h
+dcx DE
+dcx HL
+
+move:
+add C
+JZ end
+sub C
+;do your thing
+inx HL
+add M
+inx DE
+STAX DE
+sub M
+;complete
+dcr C
+JMP move
+
+end:
+
+CALL SORT
+
+ORG 1160h
+SORT:
+mvi A,1h
+STA 902h
+;-----------
+dcr B; already have first elem
+lxi DE,1FFFh
+lxi HL,1FFFh
+;SPHL
+keep_sorting:
+LDA 902h
+inr A
+JZ change
+JNZ keep
+change:
+LDA 800h
+STAX DE
+xra A
+keep:
+;LDA 900h
+xra A
+mov C,B
+dcr B
+add C
+JZ finish
+sub C
+inx DE
+;HL change
+;XTHL
+;inx HL
+;SPHL
+;
+
+inx HL
+add M
+;set minimum to cell (min=x[0] ...)
+STA 800h
+
+mvi A,1b
+STA 902h
+xra A
+
+    move1:
+    add C
+    JZ return_HL
+    sub C
+    ;do your thing
+    LDA 800h
+    inx HL
+    ;compare A and ((HL))
+    CMP M
+    JC replace
+    JNC next
+    replace:
+    xra M
+
+    STA 800h
+    xra M
+    MOV M,A
+    LDA 800h
+    xra M
+    STA 800h
+    ;to signal about replace
+    mvi A,0ffh
+    STA 902h
+    ;JMP after replace
+
+    next:
+    xra A;clear
+    ;replace complete
+    ;dcx HL
+    ;sub M
+    ;inx HL
+    dcr C
+    JMP move1
+
+finish:
+HLT
+
+org 1300
+return_HL:
+dcx HL
+mov C,B
+rep:
+xra A
+add C
+JZ keep_sorting
+dcr C
+dcx HL
+
+JMP rep
+
+
+;

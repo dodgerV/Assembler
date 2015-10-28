@@ -1,0 +1,51 @@
+  ORG 8000h
+
+while:
+	mov A,0F8h	 ; load in A meaning of port P5
+	anl A,#8fh
+	orl A,#10h
+	mov 0F8h,A
+	mov r3,#4h
+m3:
+	mov r2,#0E1h
+m2:
+	mov r1,#0FFh
+m1:
+	mov 0a6h,#1eh ; drop gaurding timer
+	mov 0a6h,#0e1h; drop gaurding timer
+	djnz r1,m1
+	djnz r2,m2
+	djnz r3,m3
+	mov A,0F8h
+	anl A,#8fh
+	orl A,#20h
+	mov 0F8h,A
+	mov r3,#2h
+m6:
+	mov r2,#0E1h
+m5:
+	mov r1,#0FFh
+m4:
+	mov 0a6h,#1eh
+	mov 0a6h,#0e1h
+	djnz r1,m4
+	djnz r2,m5
+	djnz r3,m6
+	mov A,0F8h
+	anl A,#8fh
+	orl A,#40h
+	mov 0F8h,A
+	mov r3,#3h
+m9:
+	mov r2,#0D2h
+m8:
+	mov r1,#0FFh
+m7:
+	mov 0a6h,#1eh
+	mov 0a6h,#0e1h
+	djnz r1,m7
+	djnz r2,m8
+	djnz r3,m9
+
+jmp while
+end
